@@ -1,0 +1,168 @@
+# Nombre del conjunto de servicios Docker Compose
+name: microservicios-carro-moto
+
+# Definición de los contenedores/servicios
+services:
+
+  # =========================
+  # MICROSERVICIO USUARIO
+  # =========================
+  usuario-service:
+
+    # Imagen Docker que se utilizará para crear el contenedor
+    image: nicolasmicros/usuario-service:1.5
+
+    # Nombre fijo del contenedor
+    container_name: usuario-service-container
+
+    # Puerto host : puerto interno del contenedor
+    ports:
+      - "8006:8006"
+
+    # Variables de entorno que recibe Spring Boot
+    environment:
+
+      # Activa el perfil Docker de Spring
+      SPRING_PROFILES_ACTIVE: docker
+
+      # Puerto interno donde escuchará usuario-service
+      SERVER_PORT: 8006
+
+      # URL interna del microservicio carro
+      CARRO_SERVICE_URL: http://carro-service:8007
+
+      # URL interna del microservicio moto
+      MOTO_SERVICE_URL: http://moto-service:8008
+
+      # URL de conexión a MySQL dentro de la red Docker
+      DB_URL: jdbc:mysql://mysql-usuarios:3306/usuariosdb
+
+      # Usuario de la base de datos
+      DB_USER: usuario
+
+      # Contraseña de la base de datos
+      DB_PASSWORD: usuario123
+
+      # Permite a Hibernate actualizar la estructura de tablas
+      DDL_AUTO: update
+
+      # Evita ejecutar scripts SQL de inicialización
+      SQL_INIT_MODE: never
+
+    # Indica qué servicios deben arrancar previamente
+    depends_on:
+      - carro-service
+      - moto-service
+      - mysql-usuarios
+
+    # Conecta este contenedor a la red común
+    networks:
+      - red-microservicios
+
+
+  # =========================
+  # MICROSERVICIO CARRO
+  # =========================
+  carro-service:
+
+    # Imagen Docker del microservicio carro
+    image: nicolasmicros/carro-service:1.0
+
+    # Nombre del contenedor
+    container_name: carro-service-container
+
+    # Puerto host : puerto interno
+    ports:
+      - "8007:8007"
+
+    # Configuración del puerto de Spring Boot
+    environment:
+      SERVER_PORT: 8007
+
+    # Red Docker compartida
+    networks:
+      - red-microservicios
+
+
+  # =========================
+  # MICROSERVICIO MOTO
+  # =========================
+  moto-service:
+
+    # Imagen Docker del microservicio moto
+    image: nicolasmicros/moto-service:1.0
+
+    # Nombre del contenedor
+    container_name: moto-service-container
+
+    # Puerto host : puerto interno
+    ports:
+      - "8008:8008"
+
+    # Configuración del puerto de Spring Boot
+    environment:
+      SERVER_PORT: 8008
+
+    # Red Docker compartida
+    networks:
+      - red-microservicios
+
+
+  # =========================
+  # BASE DE DATOS MYSQL
+  # =========================
+  mysql-usuarios:
+
+    # Imagen oficial de MySQL versión 8
+    image: mysql:8
+
+    # Nombre del contenedor
+    container_name: mysql-usuarios-container
+
+    # Variables utilizadas para crear la base de datos
+    environment:
+
+      # Contraseña del usuario root
+      MYSQL_ROOT_PASSWORD: root
+
+      # Base de datos que se crea al arrancar
+      MYSQL_DATABASE: usuariosdb
+
+      # Usuario de aplicación
+      MYSQL_USER: usuario
+
+      # Contraseña del usuario de aplicación
+      MYSQL_PASSWORD: usuario123
+
+    # Puerto MySQL host : contenedor
+    ports:
+      - "3306:3306"
+
+    # Guarda los datos fuera del contenedor
+    volumes:
+      - mysql-usuarios-data:/var/lib/mysql
+
+    # Conecta MySQL a la misma red que los microservicios
+    networks:
+      - red-microservicios
+
+
+# =========================
+# RED DOCKER
+# =========================
+networks:
+
+  # Red privada para que los contenedores se comuniquen por nombre
+  red-microservicios:
+
+    # Tipo de red estándar de Docker
+    driver: bridge
+
+
+# =========================
+# VOLUMENES
+# =========================
+volumes:
+
+  # Volumen persistente para conservar los datos de MySQL
+  mysql-usuarios-data:
