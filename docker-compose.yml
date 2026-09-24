@@ -19,8 +19,14 @@ services:
     ports:
       - "8006:8006"
 
-    # Variables de entorno que recibe Spring Boot
+       # Variables de entorno que recibe Spring Boot
     environment:
+
+      # Versión de la imagen desplegada
+      APP_VERSION: ${USUARIO_VERSION:-LOCAL}
+
+      # Origen del despliegue
+      DEPLOY_ORIGIN: ${DEPLOY_ORIGIN:-Manual}
 
       # Activa el perfil Docker de Spring
       SPRING_PROFILES_ACTIVE: docker
@@ -34,22 +40,20 @@ services:
       # URL interna del microservicio moto
       MOTO_SERVICE_URL: http://moto-service:8008
 
-      # URL de conexión a MySQL dentro de la red Docker
+      # URL de conexión a MySQL
       DB_URL: jdbc:mysql://mysql-usuarios:3306/usuariosdb
 
-      # Usuario de la base de datos
       DB_USER: usuario
-
-      # Contraseña de la base de datos
       DB_PASSWORD: usuario123
-
-      # Permite a Hibernate actualizar la estructura de tablas
       DDL_AUTO: update
-
-      # Evita ejecutar scripts SQL de inicialización
       SQL_INIT_MODE: never
 
-    # Indica qué servicios deben arrancar previamente
+    # Etiquetas para identificar el despliegue
+    labels:
+      despliegue.origen: ${DEPLOY_ORIGIN:-Manual}
+      despliegue.entorno: DES
+
+    # Servicios que deben arrancar previamente
     depends_on:
       - carro-service
       - moto-service
