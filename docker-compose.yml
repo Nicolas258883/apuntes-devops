@@ -10,7 +10,7 @@ services:
   usuario-service:
 
     # Imagen Docker que se utilizará para crear el contenedor
-    image: nicolasmicros/usuario-service:1.5
+    image: nicolasmicros/usuario-service:${USUARIO_VERSION}
 
     # Nombre fijo del contenedor
     container_name: usuario-service-container
