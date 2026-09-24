@@ -48,9 +48,13 @@ services:
       DDL_AUTO: update
       SQL_INIT_MODE: never
 
-    # Etiquetas para identificar el despliegue
+  # Etiquetas informativas que Docker guarda en el contenedor
     labels:
+
+      # Origen del despliegue: Jenkins si recibe la variable; Manual por defecto
       despliegue.origen: ${DEPLOY_ORIGIN:-Manual}
+
+      # Entorno fijo: siempre DES
       despliegue.entorno: DES
 
     # Servicios que deben arrancar previamente
