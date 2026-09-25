@@ -27,6 +27,12 @@ services:
 
       # Origen del despliegue
       DEPLOY_ORIGIN: ${DEPLOY_ORIGIN:-Manual}
+      
+      # Clave de firma de los tokens JWT, recibida dsde Jenkins
+      JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET}
+
+      # Contraseña del usuario demo, recibida desde Jenkins
+      DEMO_PASSWORD: ${DEMO_PASSWORD:?Falta DEMO_PASSWORD}
 
       # Activa el perfil Docker de Spring
       SPRING_PROFILES_ACTIVE: docker
