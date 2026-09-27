@@ -1,3 +1,9 @@
+# environment: en Docker Compose → configuración a nivel de contenedor. Inyecta esas variables de entorno antes de que arranque la app 
+# (o configura directamente otros contenedores, como MySQL, que las lee él mismo para crearse).
+#
+# Conexión entre compose y application.properties: Compose define el valor (ej. DB_URL)
+# → Docker lo pasa como variable de entorno al contenedor → Spring Boot lo lee en application.properties y lo usa.
+
 # Nombre del conjunto de servicios Docker Compose
 name: microservicios-carro-moto
 
@@ -19,18 +25,25 @@ services:
     ports:
       - "8006:8006"
 
-       # Variables de entorno que recibe Spring Boot
+    # en el environment del Compose crea Variables de entorno que luego leerá Spring Boot,
+    # es decir recibe variables de entorno de jenkins para crear sus variables de entorno.
+    # Y jenkins las crea en el script del pepeline(JenkinsFile-docker) en la seccion withEnv .
+    # Una variable de entorno. Se definen una vez y están disponibles en cualquier punto del programa sin tener que pasarlas como parámetro explícito.
+    # Docker inyecta esas variables como variables de entorno del sistema operativo dentro del contenedor, antes incluso de que arranque tu JAR
     environment:
 
-      # Versión de la imagen desplegada
+      # Versión de la imagen desplegada, se ha inicializado en el Jenkinsfile-docker con el valor introducido en el parámetro =>  "USUARIO_VERSION=${params.DOCKER_VERSION}"
       APP_VERSION: ${USUARIO_VERSION:-LOCAL}
 
-      # Origen del despliegue
+      # Origen del despliegue, se ha inicializado en el Jenkinsfile-docker a pelo => "DEPLOY_ORIGIN=Jenkins"
       DEPLOY_ORIGIN: ${DEPLOY_ORIGIN:-Manual}
       
-      # Clave de firma de los tokens JWT, recibida dsde Jenkins
+      
+      # Estas dos variables las utilizamos para que Spring Security y JWT funcionen dentro del contenedor Docker.
+      # DEMO_PASSWORD sirve para comprobar el login;
+      #  JWT_SECRET sirve para firmar y validar el token que generamos después del login.
+      # Clave de firma de los tokens JWT, recibida desde Jenkins
       JWT_SECRET: ${JWT_SECRET:?Falta JWT_SECRET}
-
       # Contraseña del usuario demo, recibida desde Jenkins
       DEMO_PASSWORD: ${DEMO_PASSWORD:?Falta DEMO_PASSWORD}
 
