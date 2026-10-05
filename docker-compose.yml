@@ -33,7 +33,7 @@ services:
     environment:
 
       # Versión de la imagen desplegada, se ha inicializado en el Jenkinsfile-docker con el valor introducido en el parámetro =>  "USUARIO_VERSION=${params.DOCKER_VERSION}"
-      APP_VERSION: ${USUARIO_VERSION:-LOCAL}
+      VERSION_IMAGEN: ${VERSION_IMAGEN:-LOCAL}
 
       # Origen del despliegue, se ha inicializado en el Jenkinsfile-docker a pelo => "DEPLOY_ORIGIN=Jenkins"
       DEPLOY_ORIGIN: ${DEPLOY_ORIGIN:-Manual}
