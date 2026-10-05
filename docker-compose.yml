@@ -35,10 +35,12 @@ services:
       # Versión de la imagen desplegada, se ha inicializado en el Jenkinsfile-docker con el valor introducido en el parámetro =>  "USUARIO_VERSION=${params.DOCKER_VERSION}"
       VERSION_IMAGEN: ${VERSION_IMAGEN:-LOCAL}
 
-      # Origen del despliegue, se ha inicializado en el Jenkinsfile-docker a pelo => "DEPLOY_ORIGIN=Jenkins"
+      # Origen del despliegue, se ha inicializado en el Jenkinsfile-docker a pelo => "DEPLOY_ORIGIN=Jenkins-Despliegue JAR en Contenedor"
       DEPLOY_ORIGIN: ${DEPLOY_ORIGIN:-Manual}
       
-      GIT_TAG: ${GIT_TAG:-desconocido}
+      # No es necesario pasar GIT_TAG por Compose porque ya se guarda
+      # en la imagen desde el Dockerfile mediante ARG + ENV.
+        # GIT_TAG: ${GIT_TAG:-desconocido}
       
       # Estas dos variables las utilizamos para que Spring Security y JWT funcionen dentro del contenedor Docker.
       # DEMO_PASSWORD sirve para comprobar el login;
