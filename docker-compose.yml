@@ -38,6 +38,7 @@ services:
       # Origen del despliegue, se ha inicializado en el Jenkinsfile-docker a pelo => "DEPLOY_ORIGIN=Jenkins"
       DEPLOY_ORIGIN: ${DEPLOY_ORIGIN:-Manual}
       
+      GIT_TAG: ${GIT_TAG:-desconocido}
       
       # Estas dos variables las utilizamos para que Spring Security y JWT funcionen dentro del contenedor Docker.
       # DEMO_PASSWORD sirve para comprobar el login;
