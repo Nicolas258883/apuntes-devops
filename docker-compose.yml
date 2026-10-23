@@ -1,3 +1,17 @@
+# RESUMEN PARA ENTREVISTA
+#
+# Utilizábamos Docker Compose para gestionar el despliegue de nuestros
+# microservicios Spring Boot y su base de datos MySQL.
+#
+# Mediante un fichero docker-compose.yml definíamos las imágenes,
+# puertos, variables de entorno, redes y volúmenes.
+#
+# Desde Jenkins ejecutábamos docker compose pull para descargar las
+# imágenes y docker compose up -d para crear y arrancar los contenedores.
+#
+# Esto nos permitía desplegar todos los servicios de forma coordinada
+# y facilitar la comunicación entre ellos mediante una red Docker compartida.
+
 # environment: en Docker Compose → configuración a nivel de contenedor. Inyecta esas variables de entorno antes de que arranque la app 
 # (o configura directamente otros contenedores, como MySQL, que las lee él mismo para crearse).
 #
