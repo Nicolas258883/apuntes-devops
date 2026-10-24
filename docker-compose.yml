@@ -45,6 +45,9 @@ services:
     # Una variable de entorno. Se definen una vez y están disponibles en cualquier punto del programa sin tener que pasarlas como parámetro explícito.
     # Docker inyecta esas variables como variables de entorno del sistema operativo dentro del contenedor, antes incluso de que arranque tu JAR
     environment:
+    
+      # Contraseña del usuario administrador, recibida desde Jenkins.
+        ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Falta ADMIN_PASSWORD}
 
       # Versión de la imagen desplegada, se ha inicializado en el Jenkinsfile-docker con el valor introducido en el parámetro =>  "USUARIO_VERSION=${params.DOCKER_VERSION}"
       VERSION_IMAGEN: ${VERSION_IMAGEN:-LOCAL}
