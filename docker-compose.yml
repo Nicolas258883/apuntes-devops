@@ -171,7 +171,7 @@ services:
     container_name: notificacion-service-container
 
     ports:
-      - "8004:8004"
+      - "8014:8004"
 
     environment:
       SERVER_PORT: 8004
