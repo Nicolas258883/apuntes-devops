@@ -132,6 +132,7 @@ services:
     # Configuración del puerto de Spring Boot
     environment:
       SERVER_PORT: 8007
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
     # Red Docker compartida
     networks:
@@ -161,23 +162,23 @@ services:
     networks:
       - red-microservicios
       
-    # ====================================
-    # MICROSERVICIO NOTIFICACIÓN SERVICE
-    # ====================================
-    notificacion-service:
-      image: nicolasmicros/notificacion-service:1.0
+  # ====================================
+  # MICROSERVICIO NOTIFICACIÓN SERVICE
+  # ====================================
+  notificacion-service:
+    image: nicolasmicros/notificacion-service:1.0
 
-      container_name: notificacion-service-container
+    container_name: notificacion-service-container
 
-      ports:
-        - "8004:8004"
+    ports:
+      - "8004:8004"
 
-      environment:
-        SERVER_PORT: 8004
-        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+    environment:
+      SERVER_PORT: 8004
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
 
-      networks:
-        - red-microservicios
+    networks:
+      - red-microservicios
     
 
   # =========================
