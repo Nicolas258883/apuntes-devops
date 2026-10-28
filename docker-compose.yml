@@ -19,7 +19,7 @@
 # → Docker lo pasa como variable de entorno al contenedor → Spring Boot lo lee en application.properties y lo usa.
 
 # Nombre del conjunto de servicios Docker Compose
-name: microservicios-carro-moto
+name: microservicios-usuario-carro-moto-kafka
 
 # Definición de los contenedores/servicios
 services:
@@ -37,7 +37,7 @@ services:
 
     # Puerto host : puerto interno del contenedor
     ports:
-      - "8006:8006"
+      - "8012:8006"
 
     # en el environment del Compose crea Variables de entorno que luego leerá Spring Boot,
     # es decir recibe variables de entorno de jenkins para crear sus variables de entorno.
@@ -45,6 +45,13 @@ services:
     # Una variable de entorno. Se definen una vez y están disponibles en cualquier punto del programa sin tener que pasarlas como parámetro explícito.
     # Docker inyecta esas variables como variables de entorno del sistema operativo dentro del contenedor, antes incluso de que arranque tu JAR
     environment:
+          
+      # Dirección del broker Kafka accesible desde los contenedores Docker.
+      # "kafka" es el nombre del contenedor/servicio Kafka dentro de la red Docker compartida.
+      # "9092" es el puerto donde escucha el broker Kafka.
+      # Esta variable sobrescribe el valor por defecto localhost:9092 definido en application.properties.
+      # Así, cuando el microservicio se ejecuta dentro de Docker, se conecta al broker Kafka mediante kafka:9092.
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
     
       # Contraseña del usuario administrador, recibida desde Jenkins.
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?Falta ADMIN_PASSWORD}
@@ -153,7 +160,25 @@ services:
     # Red Docker compartida
     networks:
       - red-microservicios
+      
+    # ====================================
+    # MICROSERVICIO NOTIFICACIÓN SERVICE
+    # ====================================
+    notificacion-service:
+      image: nicolasmicros/notificacion-service:1.0
 
+      container_name: notificacion-service-container
+
+      ports:
+        - "8004:8004"
+
+      environment:
+        SERVER_PORT: 8004
+        KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+      networks:
+        - red-microservicios
+    
 
   # =========================
   # BASE DE DATOS MYSQL
