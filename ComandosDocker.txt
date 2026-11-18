@@ -1,0 +1,52 @@
+
+
+Si tienes el fichero Dockerfile en tu proyecto, creará la imagen siguiendo la receta:
+cd C:\proyectos\usuario-service
+docker build -t usuario-service_NewImagen:3.0 .
+
+docker build -t usuario-carro-service:3.1 .
+:1.0
+
+set "VERSION_IMAGEN=2.8"
+docker compose pull   :: Comprueba si hay imágenes nuevas o actualizadas en Docker Hub y las descarga si es necesario.
+docker compose config --images                          :: si quieres comprobar qué imágenes ha seleccionado Compose:
+docker compose config --environment
+docker compose down                                     :: Detiene y elimina los contenedores y la red del Compose, conservando los volúmenes.
+
+Para ejecutar Docker Compose manualmente, sin Jenkins, debemos definir previamente en CMD las variables de entorno necesarias 
+para seleccionar la versión de la imagen y configurar las credenciales de la aplicación.
+set VERSION_IMAGEN=2.8
+echo [%VERSION_IMAGEN%]    :: muestra el valor de la variable que acabas de inicializar.
+set JWT_SECRET=7X8nk4s4+9tzeWWi8Mxjy4lmih1bs10LIOyj7opmVBA=
+set DEMO_PASSWORD=Nicolas-093109.
+set ADMIN_PASSWORD=Nicolas-093109.Admin
+
+:: Crea y arranca los contenedores en segundo plano. lee cada servicio del docker-compose.yml y hace internamente las operaciones necesarias para crear y arrancar cada contenedor, algo equivalente a ejecutar un docker run -d ... para cada uno.
+docker compose up -d                                    :: Crea y arranca los contenedores en segundo plano.
+docker compose up -d carro-service                      :: Crea y arranca el contenedor indicado en segundo plano.
+docker run -d --name usuario-service-container -p 8012:8006 usuario-service:3.0  :: puedes crear y arrancar un contenedor directamente con
+
+
+docker compose ps                                       :: Muestra los contenedores del Compose que están en ejecución.
+docker compose ps -a                                    :: Muestra todos los contenedores del Compose, incluidos los detenidos.
+docker compose config                                   :: Muestra la configuración final del Compose, resolviendo las variables de entorno.
+
+docker ps --format "table {{.Names}}\t{{.Ports}}"       :: Muestra los contenedores activos y sus puertos.
+docker ps -a                                            :: todos los contenedores de Docker, tanto activos como detenidos, igual que aparecen en Docker Desktop.
+docker ps -a --format "{{.Names}}"                      :: todos los contenedores de Docker,solo con el nombre.
+docker logs usuario-service-container --tail 80         :: Muestra las últimas 80 líneas de logs del contenedor.
+docker run -d -p 8006:8006 nicolasmicros/usuario-service:2.8  :: Crea y arranca un contenedor directamente desde la imagen 2.8.
+
+docker inspect usuario-health-tes --format "{{.Config.Image}}"
+docker inspect kafka --format "{{.Config.Image}}"
+docker inspect happy_curie --format "{{.Config.Image}}"    :: Muestra la imagen Docker utilizada para crear el contenedor.
+docker rm happy_curie                                      :: Elimina el contenedor detenido, pero conserva su imagen Docker.
+
+docker stop usuario-health-test    :: Detiene el contenedor de pruebas de salud de Spring Boot.
+docker rm usuario-health-test      :: Elimina el contenedor detenido, pero conserva su imagen Docker.
+
+docker network ls                   :: redes existentes
+docker network connect microservicios-usuario-carro-moto-kafka_red-microservicios kafka
+
+netstat -ano | findstr :8006        :: Muestra los procesos que utilizan el puerto 8006 y sus PID.
+tasklist /FI "PID eq 16092"         :: Identifica el programa asociado al PID 16092.
