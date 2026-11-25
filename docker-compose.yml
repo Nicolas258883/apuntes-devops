@@ -157,6 +157,11 @@ services:
     # Configuración del puerto de Spring Boot
     environment:
       SERVER_PORT: 8008
+      
+    # Kafka debe iniciarse antes de carro-service.
+    # depends_on controla el orden; no asegura que Kafka ya esté listo.
+    depends_on:
+      - kafka
 
     # Red Docker compartida
     networks:
@@ -176,11 +181,83 @@ services:
     environment:
       SERVER_PORT: 8004
       KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      
+    # Asegura que se solicite arrancar Kafka antes de notificaciones.
+    # No garantiza que el broker esté listo para recibir conexiones.
+    depends_on:
+      - kafka
 
     networks:
       - red-microservicios
     
+# =========================
+# BROKER KAFKA (COMPARTIDO CON STS Y JENKINS DES)
+# =========================
+# Un único broker Kafka para tres entornos:
+#
+# 1) STS/Eclipse:
+#    Los microservicios Java ejecutados en Windows
+#    se conectan mediante localhost:9092.
+#
+# 2) Jenkins DES:
+#    El JAR de usuario-service ejecutado directamente
+#    en Windows puede acceder mediante localhost:9092.
+#    No obstante, el despliegue DES únicamente ejecuta
+#    usuario-service; carro, moto y notificaciones
+#    siguen dependiendo de los servicios de STS.
+#
+# 3) Docker Compose:
+#    Los microservicios ejecutados en contenedores
+#    se conectan mediante kafka:9092.
+#
+# Kafka tiene dos listeners:
+# - EXTERNAL: localhost:9092 (Windows).
+# - INTERNAL: kafka:9092 (red Docker Compose).
+#
+# Ambos listeners pertenecen al MISMO broker Kafka.
+# No estamos creando dos contenedores ni dos brokers.
+  kafka:
 
+    # Imagen oficial de Apache Kafka, igual que la probada en STS.
+    image: apache/kafka:4.3.1
+
+    # Mantenemos el nombre que ya conoces para usar docker logs kafka.
+    container_name: kafka
+
+    # Puerto Windows 9092 -> listener EXTERNAL del contenedor 9094.
+    # El listener INTERNAL 9092 solo se utiliza dentro de la red Docker.
+    ports:
+      - "9092:9094"
+
+    environment:
+      # Broker único que también actúa como controller (KRaft, sin ZooKeeper).
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@localhost:9093"
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      # Kafka escucha en tres direcciones dentro del contenedor:
+      # INTERNAL: para los microservicios Compose.
+      # EXTERNAL: para aplicaciones ejecutadas en Windows (STS/Jenkins DES).
+      # CONTROLLER: para la coordinación KRaft del propio broker.
+      KAFKA_LISTENERS: "INTERNAL://:9092,EXTERNAL://:9094,CONTROLLER://:9093"
+
+      # Direcciones que Kafka anuncia a cada tipo de cliente.
+      # Los contenedores resuelven 'kafka' mediante la red de Compose.
+      # Windows alcanza el puerto publicado localhost:9092.
+      KAFKA_ADVERTISED_LISTENERS: "INTERNAL://kafka:9092,EXTERNAL://localhost:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
+
+      # Factores de replicación compatibles con un único broker de laboratorio.
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+    # Docker Compose conecta Kafka a la red del proyecto automáticamente.
+    networks:
+      - red-microservicios
+      
   # =========================
   # BASE DE DATOS MYSQL
   # =========================
